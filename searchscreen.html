@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Search Locations</title>
+    <link rel="stylesheet" href="search.css">
+</head>
+<body>
+    <div class="containers">
+        <div class="addSpot"> 
+            <h1>Search Locations</h1>
+            
+            <input type="text" class="searchBox" id="searchInput" placeholder="Search for a spot..." onkeyup="filterSpots()">
+            <button onclick="window.location.href = 'index.html'" type="button" id="logoutBtn" class="homeS" role="button">Home</button>
+
+           
+            <div class="spotList">
+                <ul id="spotsList"></ul>
+            </div>
+        </div>
+    </div>
+
+    <div class="locations">
+        <script>
+            async function displaySpots() {
+                try {
+                    let response = await fetch('searchlocation.php'); 
+                    if (!response.ok) {
+                        throw new Error("Network response was not ok " + response.statusText);
+                    }
+                    let spots = await response.json();
+                    let spotsList = document.getElementById('spotsList');
+                    spotsList.innerHTML = ''; 
+
+                    if (spots.length === 0) {
+                        spotsList.innerHTML = '<li>No spots found.</li>'; 
+                    } else {
+                        spots.forEach(spot => {
+                            let li = document.createElement('li');
+                            li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
+                            spotsList.appendChild(li);
+                        });
+                    }
+                } catch (error) {
+                    console.error('There was a problem with the fetch operation:', error);
+                }
+            }
+
+            function filterSpots() {
+                const input = document.getElementById('searchInput').value.toLowerCase();
+                const spotsList = document.getElementById('spotsList');
+                const spots = spotsList.getElementsByTagName('li');
+
+                for (let i = 0; i < spots.length; i++) {
+                    const spotText = spots[i].textContent.toLowerCase();
+                    spots[i].style.display = spotText.includes(input) ? '' : 'none'; 
+                }
+            }
+
+            window.onload = function() {
+                displaySpots();
+            };
+        </script>
+    </div>
+</body>
+</html>
