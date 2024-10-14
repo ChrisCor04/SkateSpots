@@ -8,7 +8,7 @@
 </head>
 <body>
     <div class="background">
-        <form method="POST" action="index.php">
+        <form method="POST" action="index.php"> 
             <img src="images/SkateSpotsLogo.png" class="skateSpotsLogo">
             <h1>Login</h1>
             <div class="inputContainer">
@@ -18,7 +18,6 @@
             <div class="inputContainer">
                 <input type="password" class="password" placeholder="Password" name="password" required>
                 <img src="images/lockicon.png" class="passImg">
-
             </div>
             <div>
                 <input type="submit" class="loginBtn" value="Login" name="login_btn">
@@ -52,7 +51,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
         $resultPassword = $row['password'];
 
         if ($password === $resultPassword) {
-            header('Location: index.html');
+            header('Location: welcome.html');
             exit(); 
         } else {
             echo "<script>alert('Login invalid: Incorrect password');</script>";
@@ -61,4 +60,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
         echo "<script>alert('User not found');</script>";
     }
 }
+
+mysqli_close($conn); // Close the database connection
 ?>
