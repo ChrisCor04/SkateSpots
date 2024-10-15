@@ -61,5 +61,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
     }
 }
 
-mysqli_close($conn); // Close the database connection
+mysqli_close($conn); 
 ?>
