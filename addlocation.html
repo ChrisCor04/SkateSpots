@@ -66,12 +66,10 @@
 
                 if (result.success) {
                     alert(result.message); 
-                    // Clear input fields
                     document.getElementById('spotName').value = '';
                     document.getElementById('spotAddress').value = '';
                     document.getElementById('spotSubmitter').value = '';
                     
-                    // Refresh spots list
                     displaySpots();
                 } else {
                     alert('Error adding spot: ' + result.message); 

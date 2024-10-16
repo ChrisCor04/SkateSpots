@@ -1,26 +1,20 @@
 <?php
-$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
-$dbname = "d59rephvlc8q0t";
-$user = "ufmufvbpcl003j";
-$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
+
+require_once 'env.php'
+
 
 try {
-    // Create a new PDO instance
     $conn = new PDO("pgsql:host=$host;dbname=$dbname;port=5432", $user, $password);
     
-    // Set PDO error mode to exception
     $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
     
-    // Get the JSON data from the request
     $data = json_decode(file_get_contents('php://input'), true);
     
-    // Check if required fields are provided
     if (empty($data['username']) || empty($data['password'])) {
         echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
         exit();
     }
     
-    // Check if username already exists
     $username = $data['username'];
     
     $stmt = $conn->prepare("SELECT * FROM logindetails WHERE username = :username");
@@ -32,11 +26,9 @@ try {
         exit();
     }
 
-    // Insert the new user into the database
     $stmt = $conn->prepare("INSERT INTO logindetails (username, password) VALUES (:username, :password)");
     $stmt->bindParam(':username', $username);
     
-    // Hash the password before storing it
     $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
     $stmt->bindParam(':password', $hashedPassword);
 
@@ -47,7 +39,6 @@ try {
     }
 
 } catch (PDOException $e) {
-    // Handle database connection errors
     echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
 }
 ?>

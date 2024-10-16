@@ -36,14 +36,12 @@
         createAccountForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
 
-            // Get form data
             const formData = new FormData(createAccountForm); 
             const data = Object.fromEntries(formData.entries()); 
 
-            // Check if passwords match
             if (data.password !== data.password2) {
                 showError('Passwords do not match. Please try again.');
-                return; // Stop form submission
+                return; 
             }
 
             try {
@@ -55,7 +53,7 @@
                     body: JSON.stringify(data),
                 });
 
-                // Check if the response is OK before parsing JSON
+                
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
                 }
@@ -75,7 +73,7 @@
         });
 
         function showError(message) {
-            alert(message); // Consider using a modal or in-page error display for better UX
+            alert(message); 
         }
     </script>
 </body>
