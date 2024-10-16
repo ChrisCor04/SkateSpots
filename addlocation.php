@@ -11,17 +11,22 @@ $conn_string = "host=$host port=$port dbname=$dbname user=$user password=$passwo
 $conn = pg_connect($conn_string);
 
 if (!$conn) {
-    die("Connection failed: " . pg_last_error());
+    header('Content-Type: application/json');
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . pg_last_error()]);
+    exit;
 }
 
+// Set the content type for JSON response
+header('Content-Type: application/json');
+
 if ($_SERVER['REQUEST_METHOD'] == 'POST') {
-    $name = pg_escape_string($conn, $_POST['name']);
-    $address = pg_escape_string($conn, $_POST['address']);
-    $submitter = pg_escape_string($conn, $_POST['submitter'] ?: 'Anonymous');
+    // Use prepared statements for inserting data
+    $name = $_POST['name'] ?? '';
+    $address = $_POST['address'] ?? '';
+    $submitter = $_POST['submitter'] ?? 'Anonymous';
 
-    $sql = "INSERT INTO spots (name, address, submitter) VALUES ('$name', '$address', '$submitter')";
-
-    $result = pg_query($conn, $sql);
+    $sql = "INSERT INTO spots (name, address, submitter) VALUES ($1, $2, $3)";
+    $result = pg_query_params($conn, $sql, array($name, $address, $submitter));
 
     if ($result) {
         echo json_encode(['success' => true, 'message' => 'Spot added successfully']);
