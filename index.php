@@ -1,4 +1,9 @@
 <?php
+// Enable error reporting
+ini_set('display_errors', 1);
+ini_set('display_startup_errors', 1);
+error_reporting(E_ALL);
+
 // PostgreSQL connection details
 $host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
 $port = "5432";
@@ -33,7 +38,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
         // Validate password using password_verify
         if (password_verify($password, $resultPassword)) {
             // Redirect to welcome page on successful login
-            header('Location: welcome.html');
+            header('Location: welcome.html'); // Adjust path if necessary
             exit(); 
         } else {
             $message = 'Login invalid: Incorrect password';
