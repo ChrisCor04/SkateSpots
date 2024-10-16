@@ -33,23 +33,34 @@
 </html>
 
 <?php
-$conn = mysqli_connect("localhost", "root", "", "websitelogin"); 
+// PostgreSQL connection details
+$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
+$port = "5432";
+$dbname = "d59rephvlc8q0t";
+$user = "ufmufvbpcl003j";
+$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
+
+// Connect to PostgreSQL database
+$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+$conn = pg_connect($conn_string);
 
 if (!$conn) {
-    die("Connection failed: " . mysqli_connect_error());
+    die("Connection failed: " . pg_last_error());
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
-    $username = mysqli_real_escape_string($conn, $_POST['username']);
-    $password = mysqli_real_escape_string($conn, $_POST['password']);
+    $username = pg_escape_string($conn, $_POST['username']);
+    $password = pg_escape_string($conn, $_POST['password']);
 
+    // Fetch user details
     $sql = "SELECT * FROM logindetails WHERE username = '$username'";
-    $result = mysqli_query($conn, $sql);
+    $result = pg_query($conn, $sql);
 
-    if (mysqli_num_rows($result) > 0) {
-        $row = mysqli_fetch_assoc($result);
+    if (pg_num_rows($result) > 0) {
+        $row = pg_fetch_assoc($result);
         $resultPassword = $row['password'];
 
+        // Validate password
         if ($password === $resultPassword) {
             header('Location: welcome.html');
             exit(); 
@@ -61,5 +72,5 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
     }
 }
 
-mysqli_close($conn); 
+pg_close($conn); 
 ?>

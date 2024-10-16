@@ -3,47 +3,57 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Add your spot!</title>
+    <title>Add Your Spot!</title>
     <link rel="stylesheet" href="search.css">
 </head>
 <body>
     <div class="containers">
         <div class="background2"></div>
-            <div class="addSpot">
-                <h1>Add Your Location!</h1>
-                <input type="text" id="spotName" class="locationName" placeholder="Name of Your Spot">
-                <input type="text" id="spotAddress" class="locationName" placeholder="Spot Address">
-                <input type="text" id="spotSubmitter" class="locationName" placeholder="Your Name (optional)">
-                <button type="button" id="addSpt" class="addSpots">Add Spot</button>
-                <button onclick="window.location.href = 'welcome.html'" type="button" id="logoutBtn" class="home" role="button">Home</button>
-                <div class="respect">For the Respect of Skateboarding don't submit false locations or obscenities</div>
-            </div>
+        <div class="addSpot">
+            <h1>Add Your Location!</h1>
+            <input type="text" id="spotName" class="locationName" placeholder="Name of Your Spot" required>
+            <input type="text" id="spotAddress" class="locationName" placeholder="Spot Address" required>
+            <input type="text" id="spotSubmitter" class="locationName" placeholder="Your Name (optional)">
+            <button type="button" id="addSpt" class="addSpots">Add Spot</button>
+            <button onclick="window.location.href = 'welcome.html'" type="button" id="logoutBtn" class="home" role="button">Home</button>
+            <div class="respect">For the Respect of Skateboarding don't submit false locations or obscenities</div>
+            <ul id="spotsList"></ul>
         </div>
+    </div>
 
-        <script>
-            async function displaySpots() {
+    <script>
+        async function displaySpots() {
+            try {
                 let response = await fetch('addlocation.php');
                 let spots = await response.json();
                 let spotsList = document.getElementById('spotsList');
-                spotsList.innerHTML = ''; 
-        
-                spots.forEach(spot => {
-                    let li = document.createElement('li');
-                    li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
-                    spotsList.appendChild(li);
-                });
-            }
-        
-            document.getElementById('addSpt').addEventListener('click', async function() {
-                let spotName = document.getElementById('spotName').value;
-                let spotAddress = document.getElementById('spotAddress').value;
-                let spotSubmitter = document.getElementById('spotSubmitter').value;
-        
-                if (!spotName || !spotAddress) {
-                    alert("Please enter both the name and address of the spot!");
-                    return;
+                spotsList.innerHTML = '';
+
+                if (spots.length === 0) {
+                    spotsList.innerHTML = '<li>No spots found.</li>';
+                } else {
+                    spots.forEach(spot => {
+                        let li = document.createElement('li');
+                        li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
+                        spotsList.appendChild(li);
+                    });
                 }
-        
+            } catch (error) {
+                console.error('Error fetching spots:', error);
+            }
+        }
+
+        document.getElementById('addSpt').addEventListener('click', async function() {
+            let spotName = document.getElementById('spotName').value;
+            let spotAddress = document.getElementById('spotAddress').value;
+            let spotSubmitter = document.getElementById('spotSubmitter').value;
+
+            if (!spotName || !spotAddress) {
+                alert("Please enter both the name and address of the spot!");
+                return;
+            }
+
+            try {
                 let response = await fetch('addlocation.php', {
                     method: 'POST',
                     headers: {
@@ -51,28 +61,30 @@
                     },
                     body: `name=${encodeURIComponent(spotName)}&address=${encodeURIComponent(spotAddress)}&submitter=${encodeURIComponent(spotSubmitter)}`
                 });
-        
+
                 let result = await response.json();
-        
+
                 if (result.success) {
                     alert(result.message); 
+                    // Clear input fields
                     document.getElementById('spotName').value = '';
                     document.getElementById('spotAddress').value = '';
                     document.getElementById('spotSubmitter').value = '';
                     
+                    // Refresh spots list
                     displaySpots();
                 } else {
                     alert('Error adding spot: ' + result.message); 
                 }
-            });
-        
-           
-            window.onload = function() {
-                displaySpots();
-            };
-        </script>
-        
-    </div>
+            } catch (error) {
+                console.error('Error adding spot:', error);
+                alert('An error occurred while adding the spot. Please try again.');
+            }
+        });
 
+        window.onload = function() {
+            displaySpots();
+        };
+    </script>
 </body>
 </html>

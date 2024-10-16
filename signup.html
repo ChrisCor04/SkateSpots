@@ -10,13 +10,13 @@
     <form id="createAccountForm">
         <h1>Create Account</h1>
         <div>
-            <input type="text" class="username" placeholder="Username" name="username" required>
+            <input type="text" class="username" placeholder="Username" name="username" required aria-label="Username">
         </div>
         <div>
-            <input type="password" class="password" placeholder="Password" name="password" required>
+            <input type="password" class="password" placeholder="Password" name="password" required aria-label="Password">
         </div>
         <div>
-            <input type="password2" class="password" placeholder="Enter Password Again" name="password2" required>
+            <input type="password" class="password" placeholder="Enter Password Again" name="password2" required aria-label="Confirm Password">
         </div>
         <div>
             <input type="submit" class="createAccountBtn" value="Create Account">
@@ -32,17 +32,17 @@
     
         createAccountForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
-    
+
             // Get form data
             const formData = new FormData(createAccountForm); 
             const data = Object.fromEntries(formData.entries()); 
-    
+
             // Check if passwords match
             if (data.password !== data.password2) {
                 alert('Passwords do not match. Please try again.');
                 return; // Stop form submission
             }
-    
+
             try {
                 const response = await fetch('signup.php', {
                     method: 'POST',
@@ -51,9 +51,14 @@
                     },
                     body: JSON.stringify(data),
                 });
-    
+
+                // Check if the response is OK before parsing JSON
+                if (!response.ok) {
+                    throw new Error('Network response was not ok: ' + response.statusText);
+                }
+
                 const result = await response.json();
-    
+
                 if (result.success) {
                     alert('Account created successfully!');
                     window.location.href = 'index.php'; 

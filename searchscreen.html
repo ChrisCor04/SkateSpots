@@ -10,58 +10,64 @@
     <div class="containers">
         <div class="addSpot"> 
             <h1>Search Locations</h1>
-            
-            <input type="text" class="searchBox" id="searchInput" placeholder="Search for a spot..." onkeyup="filterSpots()">
+            <input type="text" class="searchBox" id="searchInput" placeholder="Search for a spot..." onkeyup="filterSpots()" aria-label="Search for a spot">
             <button onclick="window.location.href = 'welcome.html'" type="button" id="logoutBtn" class="homeS" role="button">Home</button>
-
-           
             <div class="spotList">
                 <ul id="spotsList"></ul>
             </div>
+            <div id="error-message" style="color: red;"></div>
         </div>
     </div>
 
-    <div class="locations">
-        <script>
-            async function displaySpots() {
-                try {
-                    let response = await fetch('searchlocation.php'); 
-                    if (!response.ok) {
-                        throw new Error("Network response was not ok " + response.statusText);
-                    }
-                    let spots = await response.json();
-                    let spotsList = document.getElementById('spotsList');
-                    spotsList.innerHTML = ''; 
-
-                    if (spots.length === 0) {
-                        spotsList.innerHTML = '<li>No spots found.</li>'; 
-                    } else {
-                        spots.forEach(spot => {
-                            let li = document.createElement('li');
-                            li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
-                            spotsList.appendChild(li);
-                        });
-                    }
-                } catch (error) {
-                    console.error('There was a problem with the fetch operation:', error);
+    <script>
+        async function displaySpots() {
+            const errorMessageDiv = document.getElementById('error-message');
+            try {
+                let response = await fetch('searchlocation.php'); 
+                if (!response.ok) {
+                    throw new Error("Network response was not ok " + response.statusText);
                 }
-            }
+                let data = await response.json();
 
-            function filterSpots() {
-                const input = document.getElementById('searchInput').value.toLowerCase();
-                const spotsList = document.getElementById('spotsList');
-                const spots = spotsList.getElementsByTagName('li');
-
-                for (let i = 0; i < spots.length; i++) {
-                    const spotText = spots[i].textContent.toLowerCase();
-                    spots[i].style.display = spotText.includes(input) ? '' : 'none'; 
+                // Check if the API returned a success response
+                if (!data.success) {
+                    errorMessageDiv.textContent = 'Error: ' + data.message;
+                    return; // Stop processing if there's an error
                 }
-            }
 
-            window.onload = function() {
-                displaySpots();
-            };
-        </script>
-    </div>
+                let spots = data.spots; // Accessing the spots from the returned data
+                let spotsList = document.getElementById('spotsList');
+                spotsList.innerHTML = ''; 
+
+                if (spots.length === 0) {
+                    spotsList.innerHTML = '<li>No spots found.</li>'; 
+                } else {
+                    spots.forEach(spot => {
+                        let li = document.createElement('li');
+                        li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
+                        spotsList.appendChild(li);
+                    });
+                }
+            } catch (error) {
+                console.error('There was a problem with the fetch operation:', error);
+                errorMessageDiv.textContent = 'Failed to load spots. Please try again later.';
+            }
+        }
+
+        function filterSpots() {
+            const input = document.getElementById('searchInput').value.toLowerCase();
+            const spotsList = document.getElementById('spotsList');
+            const spots = spotsList.getElementsByTagName('li');
+
+            for (let i = 0; i < spots.length; i++) {
+                const spotText = spots[i].textContent.toLowerCase();
+                spots[i].style.display = spotText.includes(input) ? '' : 'none'; 
+            }
+        }
+
+        window.onload = function() {
+            displaySpots();
+        };
+    </script>
 </body>
 </html>

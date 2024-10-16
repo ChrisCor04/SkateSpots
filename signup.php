@@ -1,29 +1,49 @@
 <?php
-$conn = mysqli_connect("localhost", "root", "", "websitelogin");
+// Database connection parameters
+$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
+$dbname = "d59rephvlc8q0t";
+$user = "ufmufvbpcl003j";
+$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
 
-if (!$conn) {
-    die(json_encode(['success' => false, 'message' => 'Database connection failed']));
+try {
+    // Create a new PDO instance
+    $conn = new PDO("pgsql:host=$host;dbname=$dbname;port=5432", $user, $password);
+    
+    // Set PDO error mode to exception
+    $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    
+    // Get the JSON data from the request
+    $data = json_decode(file_get_contents('php://input'), true);
+    
+    // Prepare and execute the query to check for existing username
+    $username = $data['username'];
+    $password = $data['password'];
+    
+    $stmt = $conn->prepare("SELECT * FROM logindetails WHERE username = :username");
+    $stmt->bindParam(':username', $username);
+    $stmt->execute();
+
+    if ($stmt->rowCount() > 0) {
+        echo json_encode(['success' => false, 'message' => 'Username already taken']);
+        exit();
+    }
+
+    // Insert the new user into the database
+    $stmt = $conn->prepare("INSERT INTO logindetails (username, password) VALUES (:username, :password)");
+    $stmt->bindParam(':username', $username);
+    
+    // It's better to hash the password before storing it
+    $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
+    $stmt->bindParam(':password', $hashedPassword);
+
+    if ($stmt->execute()) {
+        echo json_encode(['success' => true]);
+    } else {
+        echo json_encode(['success' => false, 'message' => 'Error creating account']);
+    }
+
+} catch (PDOException $e) {
+    // Handle database connection errors
+    echo json_encode(['success' => false, 'message' => 'Database connection failed: ' . $e->getMessage()]);
 }
-
-$data = json_decode(file_get_contents('php://input'), true);
-
-$username = mysqli_real_escape_string($conn, $data['username']);
-$password = mysqli_real_escape_string($conn, $data['password']);
-
-$sql = "SELECT * FROM logindetails WHERE username = '$username'";
-$result = mysqli_query($conn, $sql);
-
-if (mysqli_num_rows($result) > 0) {
-    echo json_encode(['success' => false, 'message' => 'Username already taken']);
-    exit();
-}
-
-$sql = "INSERT INTO logindetails (username, password) VALUES ('$username', '$password')";
-if (mysqli_query($conn, $sql)) {
-    echo json_encode(['success' => true]);
-} else {
-    echo json_encode(['success' => false, 'message' => 'Error creating account']);
-}
-
-mysqli_close($conn);
 ?>
