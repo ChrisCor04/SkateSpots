@@ -1,3 +1,51 @@
+<?php
+// PostgreSQL connection details
+$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
+$port = "5432";
+$dbname = "d59rephvlc8q0t";
+$user = "ufmufvbpcl003j";
+$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
+
+// Connect to PostgreSQL database
+$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+$conn = pg_connect($conn_string);
+
+if (!$conn) {
+    die("Connection failed: " . pg_last_error());
+}
+
+// Initialize an empty message variable
+$message = '';
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
+    // Escape user inputs
+    $username = pg_escape_string($conn, $_POST['username']);
+    $password = pg_escape_string($conn, $_POST['password']);
+
+    // Prepare and execute the query to fetch user details
+    $sql = "SELECT * FROM logindetails WHERE username = $1";
+    $result = pg_query_params($conn, $sql, array($username));
+
+    if (pg_num_rows($result) > 0) {
+        $row = pg_fetch_assoc($result);
+        $resultPassword = $row['password'];
+
+        // Validate password using password_verify
+        if (password_verify($password, $resultPassword)) {
+            // Redirect to welcome page on successful login
+            header('Location: welcome.html');
+            exit(); 
+        } else {
+            $message = 'Login invalid: Incorrect password';
+        }
+    } else {
+        $message = 'User not found';
+    }
+}
+
+pg_close($conn); 
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -8,9 +56,12 @@
 </head>
 <body>
     <div class="background">
-        <form method="POST" action="index.php"> 
+        <form method="POST" action="login.php"> 
             <img src="images/SkateSpotsLogo.png" class="skateSpotsLogo">
             <h1>Login</h1>
+            <?php if ($message): ?>
+                <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
+            <?php endif; ?>
             <div class="inputContainer">
                 <input type="text" class="username" placeholder="Username" name="username" required>
                 <img src="images/usericon.png" class="userImg">
@@ -31,46 +82,3 @@
     </div>
 </body>
 </html>
-
-<?php
-// PostgreSQL connection details
-$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
-$port = "5432";
-$dbname = "d59rephvlc8q0t";
-$user = "ufmufvbpcl003j";
-$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
-
-// Connect to PostgreSQL database
-$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
-$conn = pg_connect($conn_string);
-
-if (!$conn) {
-    die("Connection failed: " . pg_last_error());
-}
-
-if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
-    $username = pg_escape_string($conn, $_POST['username']);
-    $password = pg_escape_string($conn, $_POST['password']);
-
-    // Fetch user details
-    $sql = "SELECT * FROM logindetails WHERE username = '$username'";
-    $result = pg_query($conn, $sql);
-
-    if (pg_num_rows($result) > 0) {
-        $row = pg_fetch_assoc($result);
-        $resultPassword = $row['password'];
-
-        // Validate password
-        if ($password === $resultPassword) {
-            header('Location: welcome.html');
-            exit(); 
-        } else {
-            echo "<script>alert('Login invalid: Incorrect password');</script>";
-        }
-    } else {
-        echo "<script>alert('User not found');</script>";
-    }
-}
-
-pg_close($conn); 
-?>

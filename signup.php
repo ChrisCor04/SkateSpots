@@ -1,8 +1,8 @@
 <?php
-$host = "your_host"; // Replace with your host
-$dbname = "your_dbname"; // Replace with your database name
-$user = "your_user"; // Replace with your database user
-$password = "your_password"; // Replace with your database password
+$host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
+$dbname = "d59rephvlc8q0t";
+$user = "ufmufvbpcl003j";
+$password = "p21d9f0ca2a74053de8eabece0e62f4181274bf0eb78ec8cedb1f5cc44f8bb882";
 
 try {
     // Create a new PDO instance
@@ -13,40 +13,31 @@ try {
     
     // Get the JSON data from the request
     $data = json_decode(file_get_contents('php://input'), true);
-
-    // Debugging: Log the received data
-    error_log("Received data: " . print_r($data, true));
     
     // Check if required fields are provided
     if (empty($data['username']) || empty($data['password'])) {
         echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
         exit();
     }
-
-    // Prepare and execute the query to check for existing username
+    
+    // Check if username already exists
     $username = $data['username'];
     
     $stmt = $conn->prepare("SELECT * FROM logindetails WHERE username = :username");
     $stmt->bindParam(':username', $username);
     $stmt->execute();
 
-    // Debugging: Log the number of rows found for the username
-    error_log("Username check: " . $username . " | Rows found: " . $stmt->rowCount());
-
     if ($stmt->rowCount() > 0) {
         echo json_encode(['success' => false, 'message' => 'Username already taken']);
         exit();
     }
 
-    // Hash the password before storing it
-    $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
-    
-    // Debugging: Log the hashed password (remove this in production)
-    error_log("Hashed Password: " . $hashedPassword);
-
     // Insert the new user into the database
     $stmt = $conn->prepare("INSERT INTO logindetails (username, password) VALUES (:username, :password)");
     $stmt->bindParam(':username', $username);
+    
+    // Hash the password before storing it
+    $hashedPassword = password_hash($data['password'], PASSWORD_DEFAULT);
     $stmt->bindParam(':password', $hashedPassword);
 
     if ($stmt->execute()) {
