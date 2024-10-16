@@ -61,7 +61,7 @@ pg_close($conn);
 </head>
 <body>
     <div class="background">
-        <form method="POST" action="login.php"> 
+        <form method="POST" action="index.php"> 
             <img src="images/SkateSpotsLogo.png" class="skateSpotsLogo">
             <h1>Login</h1>
             <?php if ($message): ?>
