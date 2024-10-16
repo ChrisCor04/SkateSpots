@@ -1,5 +1,4 @@
 <?php
-// Database connection parameters
 $host = "c3cj4hehegopde.cluster-czrs8kj4isg7.us-east-1.rds.amazonaws.com";
 $dbname = "d59rephvlc8q0t";
 $user = "ufmufvbpcl003j";
@@ -14,6 +13,12 @@ try {
     
     // Get the JSON data from the request
     $data = json_decode(file_get_contents('php://input'), true);
+    
+    // Check if required fields are provided
+    if (empty($data['username']) || empty($data['password'])) {
+        echo json_encode(['success' => false, 'message' => 'Username and password are required.']);
+        exit();
+    }
     
     // Prepare and execute the query to check for existing username
     $username = $data['username'];
@@ -32,7 +37,7 @@ try {
     $stmt = $conn->prepare("INSERT INTO logindetails (username, password) VALUES (:username, :password)");
     $stmt->bindParam(':username', $username);
     
-    // It's better to hash the password before storing it
+    // Hash the password before storing it
     $hashedPassword = password_hash($password, PASSWORD_DEFAULT);
     $stmt->bindParam(':password', $hashedPassword);
 

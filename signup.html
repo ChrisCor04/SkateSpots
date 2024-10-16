@@ -7,16 +7,19 @@
     <link rel="stylesheet" href="newmain.css">
 </head>
 <body class="signupBox">
-    <form id="createAccountForm">
+    <form id="createAccountForm" aria-label="Create Account Form">
         <h1>Create Account</h1>
         <div>
-            <input type="text" class="username" placeholder="Username" name="username" required aria-label="Username">
+            <label for="username">Username:</label>
+            <input type="text" id="username" class="username" name="username" required aria-label="Username">
         </div>
         <div>
-            <input type="password" class="password" placeholder="Password" name="password" required aria-label="Password">
+            <label for="password">Password:</label>
+            <input type="password" id="password" class="password" name="password" required aria-label="Password">
         </div>
         <div>
-            <input type="password" class="password" placeholder="Enter Password Again" name="password2" required aria-label="Confirm Password">
+            <label for="password2">Confirm Password:</label>
+            <input type="password" id="password2" class="password" name="password2" required aria-label="Confirm Password">
         </div>
         <div>
             <input type="submit" class="createAccountBtn" value="Create Account">
@@ -29,7 +32,7 @@
 
     <script>
         const createAccountForm = document.getElementById('createAccountForm');
-    
+
         createAccountForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
 
@@ -39,7 +42,7 @@
 
             // Check if passwords match
             if (data.password !== data.password2) {
-                alert('Passwords do not match. Please try again.');
+                showError('Passwords do not match. Please try again.');
                 return; // Stop form submission
             }
 
@@ -63,13 +66,17 @@
                     alert('Account created successfully!');
                     window.location.href = 'index.php'; 
                 } else {
-                    alert(result.message);
+                    showError(result.message);
                 }
             } catch (error) {
                 console.error('Error:', error);
-                alert('An error occurred. Please try again.');
+                showError('An error occurred. Please try again.');
             }
         });
+
+        function showError(message) {
+            alert(message); // Consider using a modal or in-page error display for better UX
+        }
     </script>
 </body>
 </html>
