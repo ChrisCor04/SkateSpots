@@ -35,16 +35,19 @@
 
         createAccountForm.addEventListener('submit', async (e) => {
             e.preventDefault(); 
+            //Prevent the default form handling to use JavaScript
 
             const formData = new FormData(createAccountForm); 
             const data = Object.fromEntries(formData.entries()); 
+            //Convert the form data into an Object for easier handling
 
-            if (data.password !== data.password2) {
+            if (data.password !== data.password2) { //Make sure both passwords match in the signup screen
                 showError('Passwords do not match. Please try again.');
                 return; 
             }
+            
 
-            try {
+            try { //Send a POST request to signup.php with the user data is a JSON to create the account
                 const response = await fetch('signup.php', {
                     method: 'POST',
                     headers: {
@@ -52,13 +55,13 @@
                     },
                     body: JSON.stringify(data),
                 });
-
                 
+                //Check if the response isn't ok, throw and error if it isn't
                 if (!response.ok) {
                     throw new Error('Network response was not ok: ' + response.statusText);
                 }
 
-                const result = await response.json();
+                const result = await response.json(); // Parse the JSON response from the server to determine whether the account creation was successful or not
 
                 if (result.success) {
                     alert('Account created successfully!');
@@ -66,13 +69,13 @@
                 } else {
                     showError(result.message);
                 }
-            } catch (error) {
+            } catch (error) { //Catch errors that occur while fetching user data
                 console.error('Error:', error);
                 showError('An error occurred. Please try again.');
             }
         });
 
-        function showError(message) {
+        function showError(message) { //Display errors if present
             alert(message); 
         }
     </script>
