@@ -1,13 +1,14 @@
 <?php
-ob_start();
+//Debugging Commands
+ob_start(); 
 ini_set('display_errors', 1);
 ini_set('display_startup_errors', 1);
 error_reporting(E_ALL);
 
 
-require_once 'env.php'
+require_once 'env.php' //Load environment variables from env.php
 
-$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password";
+$conn_string = "host=$host port=$port dbname=$dbname user=$user password=$password"; //Connect to the PostgreSQL database
 $conn = pg_connect($conn_string);
 
 if (!$conn) {
@@ -17,24 +18,24 @@ if (!$conn) {
 $message = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['login_btn'])) {
-    $username = pg_escape_string($conn, $_POST['username']);
-    $password = pg_escape_string($conn, $_POST['password']);
+    $username = pg_escape_string($conn, $_POST['username']);//Sets query up to search for username and pass info
+    $password = pg_escape_string($conn, $_POST['password']);//to make sure login info is correct
 
-    $sql = "SELECT * FROM logindetails WHERE username = $1";
+    $sql = "SELECT * FROM logindetails WHERE username = $1"; 
     $result = pg_query_params($conn, $sql, array($username));
 
     if (pg_num_rows($result) > 0) {
-        $row = pg_fetch_assoc($result);
-        $resultPassword = $row['password'];
+        $row = pg_fetch_assoc($result); //Fetch the user information
+        $resultPassword = $row['password'];//Verify the password was correct
 
         if (password_verify($password, $resultPassword)) {
-            header('Location: welcome.html'); 
+            header('Location: welcome.html'); //If successful you are redierected to the welcome screen
             exit(); 
         } else {
             $message = 'Login invalid: Incorrect password';
         }
     } else {
-        $message = 'User not found';
+        $message = 'User not found'; 
     }
 }
 
@@ -56,7 +57,7 @@ ob_end_flush();
             <img src="images/SkateSpotsLogo.png" class="skateSpotsLogo">
             <h1>Login</h1>
             <?php if ($message): ?>
-                <div class="error-message"><?php echo htmlspecialchars($message); ?></div>
+                <div class="error-message"><?php echo htmlspecialchars($message); ?></div> <!-- Display an error message if the login fails-->
             <?php endif; ?>
             <div class="inputContainer">
                 <input type="text" class="username" placeholder="Username" name="username" required>
