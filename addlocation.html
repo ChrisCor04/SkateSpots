@@ -21,17 +21,22 @@
         </div>
     </div>
 
+
+    <!-- Connect to database to add user inputted location -->
     <script>
         async function displaySpots() {
             try {
+                //Fetch spots data from `addloaction.php`
                 let response = await fetch('addlocation.php');
                 let spots = await response.json();
                 let spotsList = document.getElementById('spotsList');
                 spotsList.innerHTML = '';
 
+                //Check if locations are present
                 if (spots.length === 0) {
                     spotsList.innerHTML = '<li>No spots found.</li>';
                 } else {
+                    //Loop through the the spots  and add them to the list
                     spots.forEach(spot => {
                         let li = document.createElement('li');
                         li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
@@ -39,21 +44,25 @@
                     });
                 }
             } catch (error) {
+                //catch any errors that happen when fetching
                 console.error('Error fetching spots:', error);
             }
         }
-
+        
+        //Get user input using event listener on the Add Spot button
         document.getElementById('addSpt').addEventListener('click', async function() {
             let spotName = document.getElementById('spotName').value;
             let spotAddress = document.getElementById('spotAddress').value;
             let spotSubmitter = document.getElementById('spotSubmitter').value;
 
+            //Make sure the user inputted an address and name for the spot
             if (!spotName || !spotAddress) {
                 alert("Please enter both the name and address of the spot!");
                 return;
             }
 
             try {
+                //Post request to add the new spot to the database
                 let response = await fetch('addlocation.php', {
                     method: 'POST',
                     headers: {
@@ -63,13 +72,13 @@
                 });
 
                 let result = await response.json();
-
+                //If it works display a success message
                 if (result.success) {
                     alert(result.message); 
                     document.getElementById('spotName').value = '';
                     document.getElementById('spotAddress').value = '';
                     document.getElementById('spotSubmitter').value = '';
-                    
+                    //refresh the page after adding a spot
                     displaySpots();
                 } else {
                     alert('Error adding spot: ' + result.message); 
@@ -79,7 +88,7 @@
                 alert('An error occurred while adding the spot. Please try again.');
             }
         });
-
+        //Fetch and display the spots when the page loads
         window.onload = function() {
             displaySpots();
         };
