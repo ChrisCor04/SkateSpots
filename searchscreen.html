@@ -39,9 +39,11 @@
                 let spotsList = document.getElementById('spotsList');
                 spotsList.innerHTML = ''; 
 
+                //Check if spots are present
                 if (spots.length === 0) {
                     spotsList.innerHTML = '<li>No spots found.</li>'; 
                 } else {
+                    //Go through the spots database and append them to the list
                     spots.forEach(spot => {
                         let li = document.createElement('li');
                         li.textContent = `${spot.name} - ${spot.address} (${spot.submitter})`;
@@ -53,15 +55,15 @@
                 errorMessageDiv.textContent = 'Failed to load spots. Please try again later.';
             }
         }
-
+        //filter functionality to search for a specific location
         function filterSpots() {
-            const input = document.getElementById('searchInput').value.toLowerCase();
+            const input = document.getElementById('searchInput').value.toLowerCase(); //Set user input to lowercase to make the search insensitive
             const spotsList = document.getElementById('spotsList');
-            const spots = spotsList.getElementsByTagName('li');
+            const spots = spotsList.getElementsByTagName('li'); 
 
             for (let i = 0; i < spots.length; i++) {
                 const spotText = spots[i].textContent.toLowerCase();
-                spots[i].style.display = spotText.includes(input) ? '' : 'none'; 
+                spots[i].style.display = spotText.includes(input) ? '' : 'none'; //Shows the spot if it matches the user input
             }
         }
 
